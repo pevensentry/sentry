@@ -1,9 +1,17 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from .metadata import CloudflareMetadataEndpoint
 from .webhook import CloudflareWebhookEndpoint
 
 urlpatterns = [
-    url(r"^metadata/$", CloudflareMetadataEndpoint.as_view()),
-    url(r"^webhook/$", CloudflareWebhookEndpoint.as_view()),
+    re_path(
+        r"^metadata/?$",
+        CloudflareMetadataEndpoint.as_view(),
+        name="sentry-extensions-cloudflare-metadata",
+    ),
+    re_path(
+        r"^webhook/?$",
+        CloudflareWebhookEndpoint.as_view(),
+        name="sentry-extensions-cloudflare-webhook",
+    ),
 ]

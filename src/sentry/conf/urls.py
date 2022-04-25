@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import url
+from django.urls import re_path
 
 from sentry.web.frontend.csrf_failure import CsrfFailureView
 from sentry.web.frontend.error_404 import Error404View
@@ -10,9 +10,9 @@ handler404 = Error404View.as_view()
 handler500 = Error500View.as_view()
 
 urlpatterns = [
-    url(r"^500/", handler500, name="error-500"),
-    url(r"^404/", handler404, name="error-404"),
-    url(r"^403-csrf-failure/", CsrfFailureView.as_view(), name="error-403-csrf-failure"),
+    re_path(r"^500/?$", handler500, name="error-500"),
+    re_path(r"^404/?$", handler404, name="error-404"),
+    re_path(r"^403-csrf-failure/?$", CsrfFailureView.as_view(), name="error-403-csrf-failure"),
 ]
 
 if "django.contrib.admin" in settings.INSTALLED_APPS:
