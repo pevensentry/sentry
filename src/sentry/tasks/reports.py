@@ -15,6 +15,7 @@ from django.db.models import F
 from django.urls.base import reverse
 from django.utils import dateformat, timezone
 from django.utils.http import urlencode
+from snuba_sdk import Request
 from snuba_sdk.column import Column
 from snuba_sdk.conditions import Condition, Op
 from snuba_sdk.entity import Entity
@@ -258,7 +259,6 @@ def build_project_series(start__stop, project):
 
     # Use outcomes to compute total errors and transactions
     outcomes_query = Query(
-        dataset=Dataset.Outcomes.value,
         match=Entity("outcomes"),
         select=[
             Column("time"),
@@ -281,7 +281,8 @@ def build_project_series(start__stop, project):
         granularity=Granularity(rollup),
         orderby=[OrderBy(Column("time"), Direction.ASC)],
     )
-    outcome_series = raw_snql_query(outcomes_query, referrer="reports.outcome_series")
+    request = Request(dataset=Dataset.Outcomes.value, app_id="reports", query=outcomes_query)
+    outcome_series = raw_snql_query(request, referrer="reports.outcome_series")
     total_error_series = OrderedDict()
     for v in outcome_series["data"]:
         if v["category"] in DataCategory.error_categories():
@@ -388,7 +389,6 @@ def build_project_usage_outcomes(start__stop, project):
     end = stop + timedelta(days=1)
 
     query = Query(
-        dataset=Dataset.Outcomes.value,
         match=Entity("outcomes"),
         select=[
             Column("outcome"),
@@ -412,7 +412,8 @@ def build_project_usage_outcomes(start__stop, project):
         groupby=[Column("outcome"), Column("category")],
         granularity=Granularity(ONE_DAY),
     )
-    data = raw_snql_query(query, referrer="reports.outcomes")["data"]
+    request = Request(dataset=Dataset.Outcomes.value, app_id="reports", query=query)
+    data = raw_snql_query(request, referrer="reports.outcomes")["data"]
 
     return (
         # Accepted errors
@@ -501,7 +502,6 @@ def build_key_errors(interval, project):
 
     # Take the 3 most frequently occuring events
     query = Query(
-        dataset=Dataset.Events.value,
         match=Entity("events"),
         select=[Column("group_id"), Function("count", [])],
         where=[
@@ -513,7 +513,8 @@ def build_key_errors(interval, project):
         orderby=[OrderBy(Function("count", []), Direction.DESC)],
         limit=Limit(3),
     )
-    query_result = raw_snql_query(query, referrer="reports.key_errors")
+    request = Request(dataset=Dataset.Events.value, app_id="reports", query=query)
+    query_result = raw_snql_query(request, referrer="reports.key_errors")
     key_errors = query_result["data"]
     return [(e["group_id"], e["count()"]) for e in key_errors]
 
@@ -523,7 +524,6 @@ def build_key_transactions(interval, project):
 
     # Take the 3 most frequently occuring transactions
     query = Query(
-        dataset=Dataset.Transactions.value,
         match=Entity("transactions"),
         select=[
             Column("transaction_name"),
@@ -538,7 +538,8 @@ def build_key_transactions(interval, project):
         orderby=[OrderBy(Function("count", []), Direction.DESC)],
         limit=Limit(3),
     )
-    query_result = raw_snql_query(query, referrer="reports.key_transactions")
+    request = Request(dataset=Dataset.Transactions.value, app_id="reports", query=query)
+    query_result = raw_snql_query(request, referrer="reports.key_transactions")
     key_errors = query_result["data"]
 
     transaction_names = map(lambda p: p["transaction_name"], key_errors)
@@ -546,7 +547,6 @@ def build_key_transactions(interval, project):
     def query_p95(interval):
         start, stop = interval
         query = Query(
-            dataset=Dataset.Transactions.value,
             match=Entity("transactions"),
             select=[
                 Column("transaction_name"),
@@ -560,7 +560,8 @@ def build_key_transactions(interval, project):
             ],
             groupby=[Column("transaction_name")],
         )
-        return raw_snql_query(query, referrer="reports.key_transactions.p95")
+        request = Request(dataset=Dataset.Transactions.value, app_id="reports", query=query)
+        return raw_snql_query(request, referrer="reports.key_transactions.p95")
 
     query_result = query_p95((start, stop))
     this_week_p95 = {}
