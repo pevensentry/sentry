@@ -25,6 +25,8 @@ ReleaseName = str
 EnvironmentName = str
 DateString = str
 
+SnubaAppID = "metrics.release_health"
+
 #: The functions supported by `run_sessions_query`
 SessionsQueryFunction = Literal[
     "sum(session)",

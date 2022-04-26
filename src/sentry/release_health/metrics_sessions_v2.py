@@ -378,7 +378,7 @@ def _get_filter_conditions(conditions: Sequence[Condition]) -> Any:
     dummy_entity = EntityKey.MetricsSets.value
     return json_to_snql(
         {"selected_columns": ["value"], "conditions": conditions}, entity=dummy_entity
-    ).where
+    ).query.where
 
 
 def _parse_orderby(query: QueryDefinition) -> Optional[OrderBy]:
