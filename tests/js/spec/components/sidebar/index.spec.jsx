@@ -4,6 +4,7 @@ import {act, render, screen, userEvent, waitFor} from 'sentry-test/reactTestingL
 import * as incidentActions from 'sentry/actionCreators/serviceIncidents';
 import SidebarContainer from 'sentry/components/sidebar';
 import ConfigStore from 'sentry/stores/configStore';
+import {OrganizationContext} from 'sentry/views/organizationContext';
 
 jest.mock('sentry/actionCreators/serviceIncidents');
 
@@ -16,7 +17,9 @@ describe('Sidebar', function () {
   const location = {...router.location, ...{pathname: '/test/'}};
 
   const getElement = props => (
-    <SidebarContainer organization={organization} location={location} {...props} />
+    <OrganizationContext.Provider value={organization}>
+      <SidebarContainer organization={organization} location={location} {...props} />
+    </OrganizationContext.Provider>
   );
 
   const renderSidebar = props => render(getElement(props));
@@ -246,7 +249,9 @@ describe('Sidebar', function () {
   });
 
   it('can toggle collapsed state', async function () {
-    const container = renderSidebar();
+    const container = renderSidebar({
+      organization,
+    });
     await waitFor(() => container);
 
     expect(screen.getByText(user.name)).toBeInTheDocument();
