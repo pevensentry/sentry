@@ -24,6 +24,7 @@ markers = [
     "snuba: mark a test as requiring snuba",
     "itunes: test requires iTunes interaction, skipped unless --itunes is provided",
     "getsentryllc: test requires credentials for the GetSentry LLC organisation in Apple App Store Connect",
+    "url_resolve: runs unit tests for django route resolver"
 ]
 selenium_driver = "chrome"
 filterwarnings = [
