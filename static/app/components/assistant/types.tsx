@@ -9,7 +9,7 @@ export type GuideStep = {
    */
   target: string;
   /**
-   * Disables dismissal
+   * Disable
    */
   cantDismiss?: boolean;
   /**
