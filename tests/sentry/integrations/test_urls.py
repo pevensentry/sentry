@@ -1,6 +1,8 @@
 import importlib
 import pkgutil
 
+import pytest
+
 """
 What's happening below?
 
@@ -28,6 +30,7 @@ def pytest_generate_tests(metafunc):
         metafunc.parametrize("test_urls", integrations_with_urls)
 
 
+@pytest.mark.url_resolve
 def test_urlpatterns_have_names(test_urls):
     integration = importlib.import_module(test_urls)
     url_patterns = getattr(integration, "urlpatterns")
